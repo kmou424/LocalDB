@@ -1,0 +1,8 @@
+// 测试初始化
+
+POST http://localhost:8081/init
+Content-Type: application/json
+
+{}
+
+###
