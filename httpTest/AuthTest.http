@@ -4,7 +4,7 @@ POST http://localhost:8081/auth
 Content-Type: application/json
 
 {
-  "name": "root",
+  "username": "root",
   "password": "123456"
 }
 
