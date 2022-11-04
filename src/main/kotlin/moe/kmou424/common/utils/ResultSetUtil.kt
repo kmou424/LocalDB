@@ -1,17 +1,17 @@
 package moe.kmou424.common.utils
 
-import moe.kmou424.sqlite.enums.KeyType
+import moe.kmou424.sqlite.enums.ColumnType
 import java.sql.ResultSet
 
 object ResultSetUtil {
 
-    fun ResultSet.getAttr(type: KeyType, key: String): Any? {
+    fun ResultSet.getAttr(type: ColumnType, key: String): Any? {
         return when (type) {
-            KeyType.INT -> this.getInt(key)
-            KeyType.INTEGER -> this.getInt(key)
-            KeyType.BOOLEAN -> this.getBoolean(key)
-            KeyType.DATETIME -> this.getDate(key)
-            KeyType.TEXT -> this.getString(key)
+            ColumnType.INT -> this.getInt(key)
+            ColumnType.INTEGER -> this.getInt(key)
+            ColumnType.BOOLEAN -> this.getBoolean(key)
+            ColumnType.DATETIME -> this.getDate(key)
+            ColumnType.TEXT -> this.getString(key)
         }
     }
 

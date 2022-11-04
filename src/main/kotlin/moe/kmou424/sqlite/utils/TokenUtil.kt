@@ -4,7 +4,7 @@ import moe.kmou424.Global
 import moe.kmou424.common.utils.SimpleTokenUtil
 import moe.kmou424.sqlite.SQLiteManager
 import moe.kmou424.sqlite.dao.SQLiteUserTable
-import moe.kmou424.sqlite.enums.KeyType
+import moe.kmou424.sqlite.enums.ColumnType
 import java.time.LocalDateTime
 
 object TokenUtil {
@@ -27,12 +27,12 @@ object TokenUtil {
         return databaseManager.query(
             Global.SysTables.Users,
             listOf(
-                Pair("id", KeyType.INTEGER),
-                Pair("name", KeyType.TEXT),
-                Pair("password", KeyType.TEXT),
-                Pair("tokenWillExpire", KeyType.BOOLEAN),
-                Pair("token", KeyType.TEXT),
-                Pair("tokenExpireTime", KeyType.DATETIME)
+                Pair("id", ColumnType.INTEGER),
+                Pair("name", ColumnType.TEXT),
+                Pair("password", ColumnType.TEXT),
+                Pair("tokenWillExpire", ColumnType.BOOLEAN),
+                Pair("token", ColumnType.TEXT),
+                Pair("tokenExpireTime", ColumnType.DATETIME)
             ),
             "token=?",
             listOf(token)

@@ -4,8 +4,7 @@ import moe.kmou424.Global
 import moe.kmou424.common.utils.ResultSetUtil.getAttr
 import moe.kmou424.sqlite.utils.SQLFormatter.formatSQLCondition
 import moe.kmou424.sqlite.dao.SQLiteTable
-import moe.kmou424.sqlite.enums.KeyExtra
-import moe.kmou424.sqlite.enums.KeyType
+import moe.kmou424.sqlite.enums.ColumnType
 import moe.kmou424.sqlite.utils.MapRender.toTypedObject
 import moe.kmou424.sqlite.utils.SQLFormatter
 import org.jetbrains.exposed.sql.Database
@@ -20,9 +19,9 @@ open class SQLiteManager(private var dbPath: String) {
         database = Database.connect(url = "jdbc:sqlite:$dbPath", driver = Global.SQLiteDriver)
     }
 
-    fun create(table: String, columnsWithTypes: List<Pair<String, KeyType>>, columnsExtra: List<List<KeyExtra>>) {
+    fun create(table: String, columnsWithTypes: ColumnMapper) {
         transaction(database) {
-            exec(SQLFormatter.formatSQLCreateTable(table, columnsWithTypes, columnsExtra))
+            exec(SQLFormatter.formatSQLCreateTable(table, columnsWithTypes))
         }
     }
 
@@ -47,7 +46,7 @@ open class SQLiteManager(private var dbPath: String) {
         }
     }
 
-    inline fun <reified T : SQLiteTable> query(table: String, columnsWithTypes: List<Pair<String, KeyType>>,
+    inline fun <reified T : SQLiteTable> query(table: String, columnsWithTypes: List<Pair<String, ColumnType>>,
                                                condition: String? = null, conditionArgs: List<Any?>? = null): List<T> {
         val result = emptyArray<T>().toMutableList()
         val conditionString = if (condition != null && conditionArgs != null) condition.formatSQLCondition(conditionArgs) else ""

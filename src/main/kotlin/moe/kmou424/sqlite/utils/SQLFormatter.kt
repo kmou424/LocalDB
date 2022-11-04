@@ -1,27 +1,27 @@
 package moe.kmou424.sqlite.utils
 
 import moe.kmou424.common.utils.TypeUtil
-import moe.kmou424.sqlite.enums.KeyExtra
-import moe.kmou424.sqlite.enums.KeyType
+import moe.kmou424.sqlite.ColumnMapper
+import moe.kmou424.sqlite.enums.ColumnRestrict
+import moe.kmou424.sqlite.enums.ColumnType
 
 object SQLFormatter {
     fun formatSQLCreateTable(
         table: String,
-        columnsWithTypes: List<Pair<String, KeyType>>,
-        columnsExtra: List<List<KeyExtra>>
+        columnMapper: ColumnMapper
     ): String {
         val cols = emptyArray<String>().toMutableList()
-        for (idx in columnsWithTypes.indices) {
+        for (columnSummary in columnMapper.keys) {
             val col = emptyArray<String>().toMutableList().also {
-                it.add(columnsWithTypes[idx].first)
-                it.add(columnsWithTypes[idx].second.sql)
-                if (columnsExtra[idx].contains(KeyExtra.PRIMARYKEY)) {
-                    it.add(KeyExtra.PRIMARYKEY.sql)
-                    if (columnsExtra[idx].contains(KeyExtra.AUTOINCREMENT) && columnsWithTypes[idx].second.autoInc)
-                        it.add(KeyExtra.AUTOINCREMENT.sql)
+                it.add(columnSummary.first)
+                it.add(columnSummary.second.sql)
+                if (columnMapper[columnSummary]!!.contains(ColumnRestrict.PRIMARYKEY)) {
+                    it.add(ColumnRestrict.PRIMARYKEY.sql)
+                    if (columnMapper[columnSummary]!!.contains(ColumnRestrict.AUTOINCREMENT) && columnSummary.second.autoInc)
+                        it.add(ColumnRestrict.AUTOINCREMENT.sql)
                 }
-                if (columnsExtra[idx].contains(KeyExtra.NOTNULL))
-                    it.add(KeyExtra.NOTNULL.sql)
+                if (columnMapper[columnSummary]!!.contains(ColumnRestrict.NOTNULL))
+                    it.add(ColumnRestrict.NOTNULL.sql)
                 else
                     it.add("NULL")
             }
@@ -56,7 +56,7 @@ object SQLFormatter {
         return "INSERT INTO $table (${columns.joinToString(", ")}) VALUES (${values.joinToString(", ")});"
     }
 
-    fun formatSQLQuery(table: String, columnsWithTypes: List<Pair<String, KeyType>>): String {
+    fun formatSQLQuery(table: String, columnsWithTypes: List<Pair<String, ColumnType>>): String {
         return "SELECT %s FROM %s".format(
             emptyList<String>().toMutableList().also { for (item in columnsWithTypes) it.add(item.first) }.joinToString(", "),
             table

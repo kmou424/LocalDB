@@ -7,6 +7,7 @@ object Global {
 
     object SysTables {
         const val Users = "_Users"
+        const val AuthorizedDataBase = "_AuthorizedDataBase"
     }
 
     val DefaultCharset = Charsets.UTF_8

@@ -42,7 +42,7 @@ class ApplicationTest {
                 configureAuth()
             }
             client.post("/app/init")
-            client.post("/auth") {
+            client.post("/auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody(GlobalObjectMapper.writeValueAsString(mapOf(
                     "username" to appConfiguration.admin.username,

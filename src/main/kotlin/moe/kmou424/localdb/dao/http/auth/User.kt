@@ -1,6 +1,6 @@
-package moe.kmou424.localdb.dao.http
+package moe.kmou424.localdb.dao.http.auth
 
-data class AuthUser(
+data class User(
     val username: String,
     val password: String,
     val token: String?

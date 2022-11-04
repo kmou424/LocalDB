@@ -1,6 +1,6 @@
 // 测试初始化
 
-POST http://localhost:8081/init
+POST http://localhost:8081/app/init
 Content-Type: application/json
 
 {}

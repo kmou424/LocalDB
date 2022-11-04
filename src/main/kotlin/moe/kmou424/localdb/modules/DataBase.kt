@@ -6,38 +6,18 @@ import io.ktor.server.routing.*
 
 fun Application.configureDataBase() {
     routing {
-        // Table control
-        post("/api/db/create") {
+        post("/api/db/{operation}") {
             call.respond(
-                mapOf(
-                "status" to "ok"
-                )
+                when (call.parameters["operation"]) {
+                    "alter" -> mapOf("status" to "ok")
+                    "drop" -> mapOf("status" to "ok")
+                    "insert" -> mapOf("status" to "ok")
+                    "delete" -> mapOf("status" to "ok")
+                    "update" -> mapOf("status" to "ok")
+                    "query" -> mapOf("status" to "ok")
+                    else -> {}
+                }
             )
-        }
-
-        post("/api/db/alter") {
-
-        }
-
-        post("/api/db/drop") {
-
-        }
-
-        // Schema control
-        post("/api/db/delete") {
-
-        }
-
-        post("/api/db/insert") {
-            call.request.queryParameters
-        }
-
-        post("/api/db/query") {
-
-        }
-
-        post("/api/db/update") {
-
         }
     }
 }

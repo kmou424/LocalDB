@@ -1,6 +1,6 @@
 package moe.kmou424.sqlite.enums
 
-enum class KeyType(
+enum class ColumnType(
     val sql: String,
     val autoInc: Boolean = false
 ) {
