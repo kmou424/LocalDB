@@ -12,6 +12,7 @@ import moe.kmou424.common.utils.AesUtil
 import moe.kmou424.common.utils.JsonType
 import moe.kmou424.common.utils.SimpleTokenUtil
 import moe.kmou424.sqlite.enums.ColumnType
+import moe.kmou424.sqlite.utils.TokenUtil.getUniqueTokenForUserType
 import java.time.LocalDateTime
 
 fun Application.configureAuth() {
@@ -55,7 +56,7 @@ private fun authLogin(user: User): JsonType {
             if (!u.tokenWillExpire) {
                 token = u.token ?: run {
                     needUpdate = true
-                    SimpleTokenUtil.generate()
+                    SimpleTokenUtil.getUniqueTokenForUserType<SysUserSchema>(appDataBase)
                 }
             } else {
                 if (u.tokenExpireTime != null && LocalDateTime.now().isBefore(LocalDateTime.parse(u.tokenExpireTime))) {
@@ -63,7 +64,7 @@ private fun authLogin(user: User): JsonType {
                 } else {
                     token = u.token ?: run {
                         needUpdate = true
-                        SimpleTokenUtil.generate()
+                        SimpleTokenUtil.getUniqueTokenForUserType<SysUserSchema>(appDataBase)
                     }
                 }
             }
