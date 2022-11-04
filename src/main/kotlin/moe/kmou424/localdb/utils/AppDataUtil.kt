@@ -40,7 +40,7 @@ object AppDataUtil {
         return FileManager(System.getProperty("user.home"))
     }
 
-    private fun getApplicationDataDir(needCreate: Boolean = false): FileManager {
+    fun getApplicationDataDir(needCreate: Boolean = false): FileManager {
         val appBaseDir = File(getUserHomePath().getSelfFile(), ".LocalDB")
         if (needCreate) appBaseDir.also {
             if (!it.exists()) it.mkdirs()

@@ -1,7 +1,7 @@
 package moe.kmou424.sqlite
 
 import moe.kmou424.Global
-import moe.kmou424.localdb.utils.getAttr
+import moe.kmou424.common.utils.ResultSetUtil.getAttr
 import moe.kmou424.sqlite.utils.SQLFormatter.formatSQLCondition
 import moe.kmou424.sqlite.dao.SQLiteTable
 import moe.kmou424.sqlite.enums.KeyExtra
@@ -20,41 +20,47 @@ open class SQLiteManager(private var dbPath: String) {
         database = Database.connect(url = "jdbc:sqlite:$dbPath", driver = Global.SQLiteDriver)
     }
 
-    fun create(table: String, columns_with_types: List<Pair<String, KeyType>>, columns_extra: List<List<KeyExtra>>) {
+    fun create(table: String, columnsWithTypes: List<Pair<String, KeyType>>, columnsExtra: List<List<KeyExtra>>) {
         transaction(database) {
-            exec(SQLFormatter.formatSQLCreateTable(table, columns_with_types, columns_extra))
+            exec(SQLFormatter.formatSQLCreateTable(table, columnsWithTypes, columnsExtra))
         }
     }
 
-    fun delete(table: String, condition: String, condition_args: List<String>) {
+    fun delete(table: String, condition: String, conditionArgs: List<String>) {
         transaction(database) {
             exec("%s%s;".format(
                 SQLFormatter.formatSQLDelete(table),
-                condition.formatSQLCondition(condition_args)
+                condition.formatSQLCondition(conditionArgs)
             ))
         }
     }
 
-    inline fun <reified T : SQLiteTable> insert(table: String, data: T) {
+    inline fun <reified T> insert(table: String, data: T, ignoreKeys: List<String>? = null) {
         transaction(database) {
-            exec(SQLFormatter.formatSQLInsert(table, data.toPairList<T>()))
+            exec(SQLFormatter.formatSQLInsert(table, when (data) {
+                is SQLiteTable -> data.toPairList<T>()
+                is List<*> -> data
+                else -> return@transaction
+            }, ignoreKeys).also {
+                if (it.isEmpty()) return@transaction
+            })
         }
     }
 
-    inline fun <reified T : SQLiteTable> query(table: String, columns_with_types: List<Pair<String, KeyType>>,
-                                               condition: String? = null, condition_args: List<Any?>? = null): List<T> {
+    inline fun <reified T : SQLiteTable> query(table: String, columnsWithTypes: List<Pair<String, KeyType>>,
+                                               condition: String? = null, conditionArgs: List<Any?>? = null): List<T> {
         val result = emptyArray<T>().toMutableList()
-        val conditionString = if (condition != null && condition_args != null) condition.formatSQLCondition(condition_args) else ""
+        val conditionString = if (condition != null && conditionArgs != null) condition.formatSQLCondition(conditionArgs) else ""
 
         transaction(database) {
             exec("%s%s;".format(
-                SQLFormatter.formatSQLQuery(table, columns_with_types),
+                SQLFormatter.formatSQLQuery(table, columnsWithTypes),
                 conditionString
             )) { resultSet ->
                 while (resultSet.next()) {
                     val hashMap = HashMap<String, Any?>()
-                    for (idx in columns_with_types.indices) {
-                        hashMap[columns_with_types[idx].first] = resultSet.getAttr(columns_with_types[idx].second, columns_with_types[idx].first)
+                    for (idx in columnsWithTypes.indices) {
+                        hashMap[columnsWithTypes[idx].first] = resultSet.getAttr(columnsWithTypes[idx].second, columnsWithTypes[idx].first)
                     }
                     result.add(hashMap.toTypedObject(T::class.java))
                 }
@@ -63,10 +69,16 @@ open class SQLiteManager(private var dbPath: String) {
         return result.toList()
     }
 
-    inline fun <reified T : SQLiteTable> update(table: String, data: T, condition: String, condition_args: List<String>) {
+    inline fun <reified T> update(table: String, data: T, condition: String, conditionArgs: List<String>) {
         transaction(database) {
             exec("%s%s;".format(
-                SQLFormatter.formatSQLUpdateTable(table, data.toPairList<T>()), condition.formatSQLCondition(condition_args)))
+                SQLFormatter.formatSQLUpdateTable(table, when (data) {
+                    is SQLiteTable -> data.toPairList<T>()
+                    is List<*> -> data
+                    else -> return@transaction
+                }).also {
+                    if (it.isEmpty()) return@transaction
+                }, condition.formatSQLCondition(conditionArgs)))
         }
     }
 }

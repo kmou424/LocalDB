@@ -31,18 +31,6 @@ object SystemUtil {
         private fun getOSName(): String {
             return java.lang.System.getProperty("os.name").toLowerCase()
         }
-
-        /**
-         * 获取用户Home目录
-         */
-
-
-        /**
-         * 获取App配置根目录
-         */
-
-
-
     }
 
     class Runtime {

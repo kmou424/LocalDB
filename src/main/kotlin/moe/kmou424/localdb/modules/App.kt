@@ -7,10 +7,11 @@ import moe.kmou424.Global
 import moe.kmou424.localdb.appConfiguration
 import moe.kmou424.localdb.appDataBase
 import moe.kmou424.localdb.dao.database.SysUserSchema
-import moe.kmou424.localdb.utils.AESUtil
-import moe.kmou424.localdb.utils.SimpleTokenUtil
+import moe.kmou424.common.utils.AesUtil
+import moe.kmou424.common.utils.SimpleTokenUtil
 import moe.kmou424.sqlite.enums.KeyExtra
 import moe.kmou424.sqlite.enums.KeyType
+import moe.kmou424.sqlite.utils.TokenUtil.getUniqueTokenForUserType
 
 fun initAppDataBase() {
     appDataBase.create(
@@ -36,18 +37,18 @@ fun initAppDataBase() {
         name = appConfiguration.admin.username,
         password = appConfiguration.admin.password.let { password ->
             if (appConfiguration.encrypt.enabled)
-                return@let AESUtil.encrypt(password)
+                return@let AesUtil.encrypt(password)
             return@let password
         },
-        token = SimpleTokenUtil.getUniqueToken<SysUserSchema>(appDataBase),
+        token = SimpleTokenUtil.getUniqueTokenForUserType<SysUserSchema>(appDataBase),
         tokenWillExpire = false
     )
-    appDataBase.insert(Global.SysTables.Users, adminUser)
+    appDataBase.insert(Global.SysTables.Users, adminUser, ignoreKeys = listOf("id"))
 }
 
 fun Application.configureApp() {
     routing {
-        post("/init") {
+        post("/app/init") {
             initAppDataBase()
             call.respond(mapOf(
                 "status" to "ok"

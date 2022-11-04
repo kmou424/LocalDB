@@ -1,24 +1,15 @@
-package moe.kmou424.localdb.utils
+package moe.kmou424.sqlite.utils
 
 import moe.kmou424.Global
+import moe.kmou424.common.utils.SimpleTokenUtil
 import moe.kmou424.sqlite.SQLiteManager
 import moe.kmou424.sqlite.dao.SQLiteUserTable
 import moe.kmou424.sqlite.enums.KeyType
 import java.time.LocalDateTime
 
-object SimpleTokenUtil {
-    private const val TokenLen = 32;
+object TokenUtil {
 
-    fun generate(tokenLen: Int = TokenLen): String {
-        val str = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,.;+=-_()"
-        var token = ""
-        for (i in 0 until tokenLen) {
-            token += str[(1..str.length).random() - 1]
-        }
-        return token
-    }
-
-    inline fun <reified T : SQLiteUserTable> getUniqueToken(databaseManager: SQLiteManager): String {
+    inline fun <reified T : SQLiteUserTable> SimpleTokenUtil.getUniqueTokenForUserType(databaseManager: SQLiteManager): String {
         var token = generate()
         var query = listOf<T>().toMutableList().also {
             it.add(T::class.java.getConstructor().newInstance())
@@ -26,13 +17,13 @@ object SimpleTokenUtil {
 
         while (query.isNotEmpty()) {
             token = generate()
-            query = queryToken(databaseManager, token)
+            query = queryTokenForUserType(databaseManager, token)
         }
 
         return token
     }
 
-    inline fun <reified T : SQLiteUserTable> queryToken(databaseManager: SQLiteManager, token: String): List<T> {
+    inline fun <reified T : SQLiteUserTable> SimpleTokenUtil.queryTokenForUserType(databaseManager: SQLiteManager, token: String): List<T> {
         return databaseManager.query(
             Global.SysTables.Users,
             listOf(
@@ -48,8 +39,8 @@ object SimpleTokenUtil {
         )
     }
 
-    inline fun <reified T : SQLiteUserTable> verifyToken(databaseManager: SQLiteManager, token: String): Boolean {
-        val query = queryToken<T>(databaseManager, token)
+    inline fun <reified T : SQLiteUserTable> SimpleTokenUtil.verifyTokenForUserType(databaseManager: SQLiteManager, token: String): Boolean {
+        val query = queryTokenForUserType<T>(databaseManager, token)
         if (query.size == 1) {
             val user = query[0]
             return if (user.tokenWillExpire) {
@@ -60,4 +51,5 @@ object SimpleTokenUtil {
         }
         return false
     }
+
 }

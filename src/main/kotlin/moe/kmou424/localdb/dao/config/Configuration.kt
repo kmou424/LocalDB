@@ -1,6 +1,6 @@
 package moe.kmou424.localdb.dao.config
 
-import moe.kmou424.localdb.utils.SimpleTokenUtil
+import moe.kmou424.common.utils.SimpleTokenUtil
 
 data class Configuration(
     val server: ServerConfigurationData = ServerConfigurationData(),
@@ -25,5 +25,5 @@ data class DataBaseConfigurationData(
 
 data class EncryptConfigurationData(
     val enabled: Boolean = true,
-    val password: String = SimpleTokenUtil.generate(16)
+    val key: String = SimpleTokenUtil.generate(16)
 )

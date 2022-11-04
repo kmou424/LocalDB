@@ -8,8 +8,8 @@ import moe.kmou424.Global
 import moe.kmou424.localdb.appDataBase
 import moe.kmou424.localdb.dao.database.SysUserSchema
 import moe.kmou424.localdb.dao.http.AuthUser
-import moe.kmou424.localdb.utils.AESUtil
-import moe.kmou424.localdb.utils.SimpleTokenUtil
+import moe.kmou424.common.utils.AesUtil
+import moe.kmou424.common.utils.SimpleTokenUtil
 import moe.kmou424.sqlite.enums.KeyType
 import java.time.LocalDateTime
 
@@ -35,12 +35,12 @@ fun Application.configureAuth() {
                     Pair("tokenExpireTime", KeyType.DATETIME)
                 ),
                 "name=?",
-                listOf(user.name)
+                listOf(user.username)
             )
 
             if (data.size == 1) {
                 val u = data[0]
-                if (u.password == AESUtil.encrypt(user.password)) {
+                if (u.password == AesUtil.encrypt(user.password)) {
                     if (!u.tokenWillExpire) {
                         token = u.token ?: let {
                             needUpdate = true

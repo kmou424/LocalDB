@@ -7,7 +7,7 @@ import io.ktor.server.routing.*
 fun Application.configureDataBase() {
     routing {
         // Table control
-        post("/create") {
+        post("/api/db/create") {
             call.respond(
                 mapOf(
                 "status" to "ok"
@@ -15,28 +15,28 @@ fun Application.configureDataBase() {
             )
         }
 
-        post("/alter") {
+        post("/api/db/alter") {
 
         }
 
-        post("/drop") {
+        post("/api/db/drop") {
 
         }
 
         // Schema control
-        post("/delete") {
+        post("/api/db/delete") {
 
         }
 
-        post("/insert") {
+        post("/api/db/insert") {
             call.request.queryParameters
         }
 
-        post("/query") {
+        post("/api/db/query") {
 
         }
 
-        post("/update") {
+        post("/api/db/update") {
 
         }
     }
