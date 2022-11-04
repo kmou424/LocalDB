@@ -5,12 +5,11 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import moe.kmou424.Global
+import moe.kmou424.common.utils.AesUtil
+import moe.kmou424.common.utils.JsonType
 import moe.kmou424.localdb.appDataBase
 import moe.kmou424.localdb.dao.database.SysUserSchema
 import moe.kmou424.localdb.dao.http.auth.User
-import moe.kmou424.common.utils.AesUtil
-import moe.kmou424.common.utils.JsonType
-import moe.kmou424.common.utils.SimpleTokenUtil
 import moe.kmou424.sqlite.enums.ColumnType
 import moe.kmou424.sqlite.utils.TokenUtil.getUniqueTokenForUserType
 import java.time.LocalDateTime
@@ -56,7 +55,7 @@ private fun authLogin(user: User): JsonType {
             if (!u.tokenWillExpire) {
                 token = u.token ?: run {
                     needUpdate = true
-                    SimpleTokenUtil.getUniqueTokenForUserType<SysUserSchema>(appDataBase)
+                    appDataBase.getUniqueTokenForUserType<SysUserSchema>()
                 }
             } else {
                 if (u.tokenExpireTime != null && LocalDateTime.now().isBefore(LocalDateTime.parse(u.tokenExpireTime))) {
@@ -64,7 +63,7 @@ private fun authLogin(user: User): JsonType {
                 } else {
                     token = u.token ?: run {
                         needUpdate = true
-                        SimpleTokenUtil.getUniqueTokenForUserType<SysUserSchema>(appDataBase)
+                        appDataBase.getUniqueTokenForUserType<SysUserSchema>()
                     }
                 }
             }

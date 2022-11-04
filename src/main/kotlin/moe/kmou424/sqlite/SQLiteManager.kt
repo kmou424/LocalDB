@@ -2,11 +2,11 @@ package moe.kmou424.sqlite
 
 import moe.kmou424.Global
 import moe.kmou424.common.utils.ResultSetUtil.getAttr
-import moe.kmou424.sqlite.utils.SQLFormatter.formatSQLCondition
 import moe.kmou424.sqlite.dao.SQLiteTable
 import moe.kmou424.sqlite.enums.ColumnType
 import moe.kmou424.sqlite.utils.MapRender.toTypedObject
 import moe.kmou424.sqlite.utils.SQLFormatter
+import moe.kmou424.sqlite.utils.SQLFormatter.formatSQLCondition
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 

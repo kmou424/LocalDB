@@ -4,12 +4,11 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import moe.kmou424.Global
+import moe.kmou424.common.utils.AesUtil
+import moe.kmou424.common.utils.JsonType
 import moe.kmou424.localdb.appConfiguration
 import moe.kmou424.localdb.appDataBase
 import moe.kmou424.localdb.dao.database.SysUserSchema
-import moe.kmou424.common.utils.AesUtil
-import moe.kmou424.common.utils.JsonType
-import moe.kmou424.common.utils.SimpleTokenUtil
 import moe.kmou424.sqlite.enums.ColumnRestrict
 import moe.kmou424.sqlite.enums.ColumnType
 import moe.kmou424.sqlite.utils.TokenUtil.getUniqueTokenForUserType
@@ -49,7 +48,7 @@ fun initAppDataBase(): JsonType {
                 return@let AesUtil.encrypt(password)
             return@let password
         },
-        token = SimpleTokenUtil.getUniqueTokenForUserType<SysUserSchema>(appDataBase),
+        token = appDataBase.getUniqueTokenForUserType<SysUserSchema>(),
         tokenWillExpire = false
     )
     appDataBase.insert(Global.SysTables.Users, data = adminUser, ignoreKeys = listOf("id"))

@@ -9,22 +9,22 @@ import java.time.LocalDateTime
 
 object TokenUtil {
 
-    inline fun <reified T : SQLiteUserTable> SimpleTokenUtil.getUniqueTokenForUserType(databaseManager: SQLiteManager): String {
-        var token = generate()
+    inline fun <reified T : SQLiteUserTable> SQLiteManager.getUniqueTokenForUserType(): String {
+        var token = SimpleTokenUtil.generate()
         var query = listOf<T>().toMutableList().also {
             it.add(T::class.java.getConstructor().newInstance())
         }.toList()
 
         while (query.isNotEmpty()) {
-            token = generate()
-            query = queryTokenForUserType(databaseManager, token)
+            token = SimpleTokenUtil.generate()
+            query = this.queryTokenForUserType(token)
         }
 
         return token
     }
 
-    inline fun <reified T : SQLiteUserTable> SimpleTokenUtil.queryTokenForUserType(databaseManager: SQLiteManager, token: String): List<T> {
-        return databaseManager.query(
+    inline fun <reified T : SQLiteUserTable> SQLiteManager.queryTokenForUserType(token: String): List<T> {
+        return this.query(
             Global.SysTables.Users,
             listOf(
                 Pair("id", ColumnType.INTEGER),
@@ -39,8 +39,8 @@ object TokenUtil {
         )
     }
 
-    inline fun <reified T : SQLiteUserTable> SimpleTokenUtil.verifyTokenForUserType(databaseManager: SQLiteManager, token: String): Boolean {
-        val query = queryTokenForUserType<T>(databaseManager, token)
+    inline fun <reified T : SQLiteUserTable> SQLiteManager.verifyTokenForUserType(token: String): Boolean {
+        val query = queryTokenForUserType<T>(token)
         if (query.size == 1) {
             val user = query[0]
             return if (user.tokenWillExpire) {
