@@ -10,18 +10,18 @@ import moe.kmou424.localdb.modules.configureApp
 import moe.kmou424.localdb.modules.configureAuth
 import moe.kmou424.localdb.modules.configureDataBase
 import moe.kmou424.localdb.modules.configureStatic
+import moe.kmou424.localdb.services.database.sys.AppSQLiteManager
 import moe.kmou424.localdb.utils.AppDataUtil
 import moe.kmou424.localdb.utils.ConfigurationUtil
-import moe.kmou424.sqlite.SQLiteManager
 
 val appConfiguration = ConfigurationUtil.getAppConfiguration()
 
 // val connections = HashMap<String, SQLiteManager>()
-val appDataBase: SQLiteManager = AppDataUtil.DataBaseDir
+val appDataBase: AppSQLiteManager = AppDataUtil.DataBaseDir
     .getDir("sys", true)
     .getFile(appConfiguration.database.app)
     .getSelfFile().absolutePath.let {
-        return@let SQLiteManager(it)
+        return@let AppSQLiteManager(it)
     }
 
 fun main() {

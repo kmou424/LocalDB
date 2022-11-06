@@ -4,14 +4,14 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import moe.kmou424.Global
 import moe.kmou424.common.utils.AesUtil
 import moe.kmou424.common.utils.JsonType
 import moe.kmou424.localdb.appDataBase
-import moe.kmou424.localdb.dao.database.SysUserSchema
+import moe.kmou424.localdb.dao.database.sys.AppUserTable
 import moe.kmou424.localdb.dao.http.auth.User
+import moe.kmou424.localdb.services.database.sys.AppSQLiteManager
 import moe.kmou424.sqlite.enums.ColumnType
-import moe.kmou424.sqlite.utils.TokenUtil.getUniqueTokenForUserType
+import moe.kmou424.sqlite.utils.TokenUtil.getUniqueToken
 import java.time.LocalDateTime
 
 fun Application.configureAuth() {
@@ -36,8 +36,8 @@ private fun authLogin(user: User): JsonType {
     var status = "ok"
     var message = ""
 
-    val data = appDataBase.query<SysUserSchema>(
-        Global.SysTables.Users,
+    val data = appDataBase.query<AppUserTable>(
+        AppSQLiteManager.AppTables.Users,
         listOf(
             "id" to ColumnType.INTEGER,
             "name" to ColumnType.TEXT,
@@ -56,7 +56,7 @@ private fun authLogin(user: User): JsonType {
             if (!u.tokenWillExpire) {
                 token = u.token ?: run {
                     needUpdate = true
-                    appDataBase.getUniqueTokenForUserType<SysUserSchema>()
+                    appDataBase.getUniqueToken<AppUserTable>()
                 }
             } else {
                 if (u.tokenExpireTime != null && LocalDateTime.now().isBefore(LocalDateTime.parse(u.tokenExpireTime))) {
@@ -64,7 +64,7 @@ private fun authLogin(user: User): JsonType {
                 } else {
                     token = u.token ?: run {
                         needUpdate = true
-                        appDataBase.getUniqueTokenForUserType<SysUserSchema>()
+                        appDataBase.getUniqueToken<AppUserTable>()
                     }
                 }
             }

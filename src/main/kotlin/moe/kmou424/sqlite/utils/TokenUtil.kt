@@ -1,55 +1,41 @@
 package moe.kmou424.sqlite.utils
 
-import moe.kmou424.Global
 import moe.kmou424.common.utils.SimpleTokenUtil
+import moe.kmou424.localdb.dao.database.sys.AppAuthorizedDataBaseTable
+import moe.kmou424.localdb.dao.database.sys.AppUserTable
+import moe.kmou424.localdb.services.database.sys.AppSQLiteManager
 import moe.kmou424.sqlite.SQLiteManager
-import moe.kmou424.sqlite.dao.SQLiteUserTable
 import moe.kmou424.sqlite.enums.ColumnType
-import java.time.LocalDateTime
 
 object TokenUtil {
 
-    inline fun <reified T : SQLiteUserTable> SQLiteManager.getUniqueTokenForUserType(): String {
+    inline fun <reified T> SQLiteManager.getUniqueToken(): String {
         var token = SimpleTokenUtil.generate()
         var query = listOf<T>().toMutableList().also {
             it.add(T::class.java.getConstructor().newInstance())
         }.toList()
+        if (query[0] is AppUserTable)
 
         while (query.isNotEmpty()) {
             token = SimpleTokenUtil.generate()
-            query = this.queryTokenForUserType(token)
+            query = when {
+                query[0] is AppUserTable -> this.query(
+                    AppSQLiteManager.AppTables.Users,
+                    listOf("id" to ColumnType.INTEGER),
+                    "token=?",
+                    listOf(token)
+                )
+                query[0] is AppAuthorizedDataBaseTable -> this.query(
+                    AppSQLiteManager.AppTables.AuthorizedDataBase,
+                    listOf("id" to ColumnType.INTEGER),
+                    "databaseKey=?",
+                    listOf(token)
+                )
+                else -> emptyList()
+            }
         }
 
         return token
-    }
-
-    inline fun <reified T : SQLiteUserTable> SQLiteManager.queryTokenForUserType(token: String): List<T> {
-        return this.query(
-            Global.SysTables.Users,
-            listOf(
-                Pair("id", ColumnType.INTEGER),
-                Pair("name", ColumnType.TEXT),
-                Pair("password", ColumnType.TEXT),
-                Pair("tokenWillExpire", ColumnType.BOOLEAN),
-                Pair("token", ColumnType.TEXT),
-                Pair("tokenExpireTime", ColumnType.DATETIME)
-            ),
-            "token=?",
-            listOf(token)
-        )
-    }
-
-    inline fun <reified T : SQLiteUserTable> SQLiteManager.verifyTokenForUserType(token: String): Boolean {
-        val query = queryTokenForUserType<T>(token)
-        if (query.size == 1) {
-            val user = query[0]
-            return if (user.tokenWillExpire) {
-                LocalDateTime.now().isBefore(LocalDateTime.parse(user.tokenExpireTime))
-            } else {
-                true
-            }
-        }
-        return false
     }
 
 }
