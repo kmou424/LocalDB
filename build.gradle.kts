@@ -14,7 +14,7 @@ version = "0.0.1"
 application {
     mainClass.set("moe.kmou424.localdb.ApplicationKt")
 
-    val isDevelopment: Boolean = project.ext.has("development")
+    val isDevelopment: Boolean = version.toString().endsWith("-dev")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
