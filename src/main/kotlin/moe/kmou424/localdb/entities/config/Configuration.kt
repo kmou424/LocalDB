@@ -1,4 +1,4 @@
-package moe.kmou424.localdb.dao.config
+package moe.kmou424.localdb.entities.config
 
 import moe.kmou424.common.utils.SimpleTokenUtil
 

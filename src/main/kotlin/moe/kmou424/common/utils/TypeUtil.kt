@@ -1,7 +1,5 @@
 package moe.kmou424.common.utils
 
-typealias JsonType = Map<String, Any?>
-
 object TypeUtil {
     inline fun <reified T, reified R> getPairMapper(p: Any?): Pair<T, R>? {
         if (p !is Pair<*, *>)

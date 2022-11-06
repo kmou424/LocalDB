@@ -1,15 +1,16 @@
 package moe.kmou424.localdb.modules
 
 import io.ktor.server.application.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import moe.kmou424.common.utils.AesUtil
-import moe.kmou424.common.utils.JsonType
 import moe.kmou424.localdb.appConfiguration
 import moe.kmou424.localdb.appDataBase
-import moe.kmou424.localdb.dao.database.sys.AppAuthorizedDataBaseTable
-import moe.kmou424.localdb.dao.database.sys.AppUserTable
-import moe.kmou424.localdb.services.database.sys.AppSQLiteManager
+import moe.kmou424.localdb.dao.AppSQLiteManager
+import moe.kmou424.localdb.entities.database.sys.AppAuthorizedDataBaseTable
+import moe.kmou424.localdb.entities.database.sys.AppUserTable
+import moe.kmou424.localdb.entities.http.HttpResponse
+import moe.kmou424.localdb.entities.http.reinsert
+import moe.kmou424.localdb.entities.http.send
 import moe.kmou424.sqlite.enums.ColumnRestrict
 import moe.kmou424.sqlite.enums.ColumnType
 import moe.kmou424.sqlite.utils.TokenUtil.getUniqueToken
@@ -18,10 +19,10 @@ fun Application.configureApp() {
     routing {
         post("/app/{target}") {
             val target = call.parameters["target"]
-            call.respond(
+            call.send(
                 when (target) {
                     "init" -> initApp()
-                    else -> mapOf("status" to "unsupported operation /app/$target")
+                    else -> HttpResponse.FAILED.reinsert("message" to "unsupported operation /app/$target")
                 }
             )
         }
@@ -80,11 +81,9 @@ private fun initAdminUser() {
     appDataBase.insertUser(adminUser)
 }
 
-private fun initApp(): JsonType {
+private fun initApp(): HttpResponse {
     initAppDataBase()
     initAdminUser()
 
-    return mapOf(
-        "status" to "ok"
-    )
+    return HttpResponse.OK
 }

@@ -1,7 +1,7 @@
 package moe.kmou424.localdb.utils
 
 import moe.kmou424.Global
-import moe.kmou424.localdb.dao.config.Configuration
+import moe.kmou424.localdb.entities.config.Configuration
 import java.io.FileNotFoundException
 
 object ConfigurationUtil {

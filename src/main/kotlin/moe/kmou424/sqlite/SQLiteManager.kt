@@ -2,7 +2,7 @@ package moe.kmou424.sqlite
 
 import moe.kmou424.Global
 import moe.kmou424.common.utils.ResultSetUtil.getAttr
-import moe.kmou424.sqlite.dao.SQLiteTable
+import moe.kmou424.sqlite.entities.SQLiteTable
 import moe.kmou424.sqlite.enums.ColumnType
 import moe.kmou424.sqlite.utils.MapRender.toTypedObject
 import moe.kmou424.sqlite.utils.SQLFormatter

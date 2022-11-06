@@ -1,10 +1,12 @@
 package moe.kmou424.localdb.modules
 
 import io.ktor.server.application.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import moe.kmou424.localdb.appDataBase
-import moe.kmou424.localdb.dao.database.sys.AppUserTable
+import moe.kmou424.localdb.entities.database.sys.AppUserTable
+import moe.kmou424.localdb.entities.http.HttpResponse
+import moe.kmou424.localdb.entities.http.reinsert
+import moe.kmou424.localdb.entities.http.send
 import moe.kmou424.sqlite.utils.TokenUtil.verifyToken
 
 fun Application.configureDataBase() {
@@ -13,41 +15,37 @@ fun Application.configureDataBase() {
             val operation = call.parameters["operation"]
 
             val token = call.request.queryParameters["token"] ?: let {
-                call.respond(mapOf("status" to "\"token\" must not be empty"))
+                call.send(HttpResponse.FAILED.reinsert("message" to "\"token\" must not be empty"))
                 return@post
             }
 
             if (!appDataBase.verifyToken<AppUserTable>(token, "token")) {
-                call.respond(mapOf("status" to "\"token\" is invalid"))
+                call.send(HttpResponse.FAILED.reinsert("message" to "\"token\" is invalid"))
                 return@post
             }
 
             when (operation) {
                 "init" ->
                     if (call.request.queryParameters["databaseName"].isNullOrEmpty()) {
-                        call.respond(mapOf("status" to "\"databaseName\" must not be empty"))
-                        return@post
-                    }
-                else ->
-                    if (call.request.queryParameters["databaseKey"].isNullOrEmpty()) {
-                        call.respond(mapOf("status" to "\"databaseKey\" must not be empty"))
+                        call.send(HttpResponse.FAILED.reinsert("message" to "\"databaseName\" must not be empty"))
                         return@post
                     }
             }
 
-            call.respond(
+            call.send(
                 when (operation) {
                     // table management
-                    "create" -> mapOf("status" to "ok")
-                    "drop" -> mapOf("status" to "ok")
-                    "alter" -> mapOf("status" to "ok")
+                    "create" -> HttpResponse.OK
+                    "drop" -> HttpResponse.OK
+                    "alter" -> HttpResponse.OK
 
                     // record management
-                    "insert" -> mapOf("status" to "ok")
-                    "delete" -> mapOf("status" to "ok")
-                    "update" -> mapOf("status" to "ok")
-                    "query" -> mapOf("status" to "ok")
-                    else -> mapOf("status" to "unsupported operation /api/db/$operation")
+                    "insert" -> HttpResponse.OK
+                    "delete" -> HttpResponse.OK
+                    "update" -> HttpResponse.OK
+                    "query" -> HttpResponse.OK
+
+                    else -> HttpResponse.FAILED.reinsert("message" to "unsupported operation /api/db/$operation")
                 }
             )
         }

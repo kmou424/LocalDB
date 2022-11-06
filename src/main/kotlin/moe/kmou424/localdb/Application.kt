@@ -6,17 +6,17 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
+import moe.kmou424.localdb.dao.AppSQLiteManager
 import moe.kmou424.localdb.modules.configureApp
 import moe.kmou424.localdb.modules.configureAuth
 import moe.kmou424.localdb.modules.configureDataBase
 import moe.kmou424.localdb.modules.configureStatic
-import moe.kmou424.localdb.services.database.sys.AppSQLiteManager
 import moe.kmou424.localdb.utils.AppDataUtil
 import moe.kmou424.localdb.utils.ConfigurationUtil
 
 val appConfiguration = ConfigurationUtil.getAppConfiguration()
 
-// val connections = HashMap<String, SQLiteManager>()
+// val connections = HashMap<String, Session>()
 val appDataBase: AppSQLiteManager = AppDataUtil.DataBaseDir
     .getDir("sys", true)
     .getFile(appConfiguration.database.app)

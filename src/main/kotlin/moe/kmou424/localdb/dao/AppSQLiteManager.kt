@@ -1,7 +1,7 @@
-package moe.kmou424.localdb.services.database.sys
+package moe.kmou424.localdb.dao
 
-import moe.kmou424.localdb.dao.database.sys.AppAuthorizedDataBaseTable
-import moe.kmou424.localdb.dao.database.sys.AppUserTable
+import moe.kmou424.localdb.entities.database.sys.AppAuthorizedDataBaseTable
+import moe.kmou424.localdb.entities.database.sys.AppUserTable
 import moe.kmou424.sqlite.SQLiteManager
 import moe.kmou424.sqlite.enums.ColumnType
 import moe.kmou424.sqlite.utils.TokenUtil.getUniqueToken

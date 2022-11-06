@@ -2,14 +2,15 @@ package moe.kmou424.localdb.modules
 
 import io.ktor.server.application.*
 import io.ktor.server.request.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import moe.kmou424.common.utils.AesUtil
-import moe.kmou424.common.utils.JsonType
 import moe.kmou424.localdb.appDataBase
-import moe.kmou424.localdb.dao.database.sys.AppUserTable
-import moe.kmou424.localdb.dao.http.auth.User
-import moe.kmou424.localdb.services.database.sys.AppSQLiteManager
+import moe.kmou424.localdb.dao.AppSQLiteManager
+import moe.kmou424.localdb.entities.database.sys.AppUserTable
+import moe.kmou424.localdb.entities.http.HttpResponse
+import moe.kmou424.localdb.entities.http.User
+import moe.kmou424.localdb.entities.http.reinsert
+import moe.kmou424.localdb.entities.http.send
 import moe.kmou424.sqlite.enums.ColumnType
 import moe.kmou424.sqlite.utils.TokenUtil.getUniqueToken
 import java.time.LocalDateTime
@@ -18,23 +19,22 @@ fun Application.configureAuth() {
     routing {
         post("/auth/{target}") {
             val target = call.parameters["target"]
-            call.respond(
+            call.send(
                 when (target) {
                     "login" -> authLogin(call.receive())
-                    else -> mapOf("status" to "unsupported operation /auth/$target")
+                    else -> HttpResponse.FAILED.reinsert("status" to "unsupported operation /auth/$target")
                 }
             )
         }
     }
 }
 
-private fun authLogin(user: User): JsonType {
+private fun authLogin(user: User): HttpResponse {
     var token: String? = null
 
-    var needUpdate = false
+    var response = HttpResponse.OK
 
-    var status = "ok"
-    var message = ""
+    var needUpdate = false
 
     val data = appDataBase.query<AppUserTable>(
         AppSQLiteManager.AppTables.Users,
@@ -69,8 +69,7 @@ private fun authLogin(user: User): JsonType {
                 }
             }
         } else {
-            status = "failed"
-            message = "Password is wrong"
+            response = HttpResponse.FAILED.reinsert("message" to "Password is wrong")
         }
 
         if (needUpdate) {
@@ -79,9 +78,7 @@ private fun authLogin(user: User): JsonType {
         }
     }
 
-    return mapOf(
-        "status" to status,
-        "message" to message,
+    return response.reinsert(
         "token" to token
     )
 }

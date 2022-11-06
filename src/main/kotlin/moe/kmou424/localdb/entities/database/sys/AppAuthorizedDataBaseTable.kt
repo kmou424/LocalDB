@@ -1,6 +1,6 @@
-package moe.kmou424.localdb.dao.database.sys
+package moe.kmou424.localdb.entities.database.sys
 
-import moe.kmou424.sqlite.dao.SQLiteTable
+import moe.kmou424.sqlite.entities.SQLiteTable
 
 data class AppAuthorizedDataBaseTable(
     override var id: Int = 0,

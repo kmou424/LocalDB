@@ -1,12 +1,11 @@
 package moe.kmou424.sqlite.utils
 
 import moe.kmou424.common.utils.SimpleTokenUtil
-import moe.kmou424.localdb.dao.database.sys.AppAuthorizedDataBaseTable
-import moe.kmou424.localdb.dao.database.sys.AppUserTable
-import moe.kmou424.localdb.services.database.sys.AppSQLiteManager
+import moe.kmou424.localdb.dao.AppSQLiteManager
+import moe.kmou424.localdb.entities.database.sys.AppAuthorizedDataBaseTable
+import moe.kmou424.localdb.entities.database.sys.AppUserTable
 import moe.kmou424.sqlite.ColumnName
-import moe.kmou424.sqlite.SQLiteManager
-import moe.kmou424.sqlite.dao.SQLiteTable
+import moe.kmou424.sqlite.entities.SQLiteTable
 import moe.kmou424.sqlite.enums.ColumnType
 
 object TokenUtil {

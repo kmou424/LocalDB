@@ -1,4 +1,4 @@
-package moe.kmou424.sqlite.dao
+package moe.kmou424.sqlite.entities
 
 import org.apache.commons.beanutils.BeanMap
 
