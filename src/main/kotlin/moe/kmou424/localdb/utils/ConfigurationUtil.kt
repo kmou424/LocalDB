@@ -24,12 +24,12 @@ object ConfigurationUtil {
 
     private fun java.io.File.writeJsonData(data: Configuration) {
         if (!this.exists()) throw FileNotFoundException(""""${this.absolutePath}" is not found""")
-        this.writeText(Global.GlobalPrettyObjectWriter.writeValueAsString(data), charset = Global.DefaultCharset)
+        this.writeText(Global.DefaultPrettyObjectWriter.writeValueAsString(data), charset = Global.DefaultCharset)
     }
 
     private fun java.io.File.readJsonData(): Configuration {
         if (!this.exists()) throw FileNotFoundException(""""${this.absolutePath}" is not found""")
         val jsonTextData = this.readText(charset = Global.DefaultCharset)
-        return Global.GlobalObjectMapper.readValue(jsonTextData, Configuration::class.java)
+        return Global.DefaultObjectMapper.readValue(jsonTextData, Configuration::class.java)
     }
 }

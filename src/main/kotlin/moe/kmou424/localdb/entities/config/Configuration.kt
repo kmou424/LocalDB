@@ -5,7 +5,6 @@ import moe.kmou424.common.utils.SimpleTokenUtil
 data class Configuration(
     val server: ServerConfigurationData = ServerConfigurationData(),
     val admin: AdminConfigurationData = AdminConfigurationData(),
-    val database: DataBaseConfigurationData = DataBaseConfigurationData(),
     val encrypt: EncryptConfigurationData = EncryptConfigurationData(),
 )
 
@@ -17,10 +16,6 @@ data class ServerConfigurationData(
 data class AdminConfigurationData(
     val username: String = "root",
     val password: String = "123456"
-)
-
-data class DataBaseConfigurationData(
-    val app: String = "app"
 )
 
 data class EncryptConfigurationData(

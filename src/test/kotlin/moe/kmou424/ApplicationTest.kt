@@ -8,13 +8,10 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
 import kotlin.test.*
 import io.ktor.server.testing.*
-import moe.kmou424.Global.GlobalObjectMapper
+import moe.kmou424.Global.DefaultObjectMapper
 import moe.kmou424.localdb.appConfiguration
 import moe.kmou424.localdb.modules.*
 import moe.kmou424.localdb.utils.AppDataUtil
-import moe.kmou424.localdb.utils.AppDataUtil.BaseDir
-import moe.kmou424.localdb.utils.AppDataUtil.ConfigDir
-import moe.kmou424.localdb.utils.AppDataUtil.DataBaseDir
 import org.junit.FixMethodOrder
 import org.junit.runners.MethodSorters
 import java.io.File
@@ -44,7 +41,7 @@ class ApplicationTest {
             client.post("/app/init")
             client.post("/auth/login") {
                 contentType(ContentType.Application.Json)
-                setBody(GlobalObjectMapper.writeValueAsString(mapOf(
+                setBody(DefaultObjectMapper.writeValueAsString(mapOf(
                     "username" to appConfiguration.admin.username,
                     "password" to appConfiguration.admin.password
                 )))

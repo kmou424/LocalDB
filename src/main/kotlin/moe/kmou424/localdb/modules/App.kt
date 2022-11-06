@@ -57,8 +57,6 @@ private fun initAppDataBase() {
 }
 
 private fun initAdminUser() {
-    var adminDataBaseKey = ""
-
     appDataBase.query<AppAuthorizedDataBaseTable>(
         AppSQLiteManager.AppTables.AuthorizedDataBase,
         listOf("id" to ColumnType.INTEGER),

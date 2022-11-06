@@ -7,14 +7,6 @@ import io.ktor.server.thymeleaf.*
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 
 fun Application.configureStatic() {
-    install(Thymeleaf) {
-        setTemplateResolver(ClassLoaderTemplateResolver().apply {
-            prefix = "static/"
-            suffix = ".html"
-            characterEncoding = "utf-8"
-        })
-    }
-
     routing {
         get("/") {
             call.respond(ThymeleafContent("index", mapOf("user" to ThymeleafUser(1, "user1"))))
