@@ -17,10 +17,11 @@ import java.time.LocalDateTime
 fun Application.configureAuth() {
     routing {
         post("/auth/{target}") {
+            val target = call.parameters["target"]
             call.respond(
-                when (call.parameters["target"]) {
+                when (target) {
                     "login" -> authLogin(call.receive())
-                    else -> {}
+                    else -> mapOf("status" to "unsupported operation /auth/$target")
                 }
             )
         }
@@ -38,12 +39,12 @@ private fun authLogin(user: User): JsonType {
     val data = appDataBase.query<SysUserSchema>(
         Global.SysTables.Users,
         listOf(
-            Pair("id", ColumnType.INTEGER),
-            Pair("name", ColumnType.TEXT),
-            Pair("password", ColumnType.TEXT),
-            Pair("tokenWillExpire", ColumnType.BOOLEAN),
-            Pair("token", ColumnType.TEXT),
-            Pair("tokenExpireTime", ColumnType.DATETIME)
+            "id" to ColumnType.INTEGER,
+            "name" to ColumnType.TEXT,
+            "password" to ColumnType.TEXT,
+            "tokenWillExpire" to ColumnType.BOOLEAN,
+            "token" to ColumnType.TEXT,
+            "tokenExpireTime" to ColumnType.DATETIME
         ),
         "name=?",
         listOf(user.username)

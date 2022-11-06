@@ -9,9 +9,9 @@ object ResultSetUtil {
         return when (type) {
             ColumnType.INT -> this.getInt(key)
             ColumnType.INTEGER -> this.getInt(key)
+            ColumnType.TEXT -> this.getString(key)
             ColumnType.BOOLEAN -> this.getBoolean(key)
             ColumnType.DATETIME -> this.getDate(key)
-            ColumnType.TEXT -> this.getString(key)
         }
     }
 

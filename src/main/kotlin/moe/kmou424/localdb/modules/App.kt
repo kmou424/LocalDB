@@ -16,10 +16,11 @@ import moe.kmou424.sqlite.utils.TokenUtil.getUniqueTokenForUserType
 fun Application.configureApp() {
     routing {
         post("/app/{target}") {
+            val target = call.parameters["target"]
             call.respond(
-                when (call.parameters["target"]) {
+                when (target) {
                     "init" -> initAppDataBase()
-                    else -> {}
+                    else -> mapOf("status" to "unsupported operation /app/$target")
                 }
             )
         }
@@ -31,12 +32,12 @@ fun initAppDataBase(): JsonType {
     appDataBase.create(
         Global.SysTables.Users,
         mapOf(
-            Pair("id", ColumnType.INTEGER) to listOf(ColumnRestrict.NOTNULL, ColumnRestrict.PRIMARYKEY, ColumnRestrict.AUTOINCREMENT),
-            Pair("name", ColumnType.TEXT) to listOf(ColumnRestrict.NOTNULL),
-            Pair("password", ColumnType.TEXT) to listOf(ColumnRestrict.NOTNULL),
-            Pair("tokenWillExpire", ColumnType.BOOLEAN) to listOf(ColumnRestrict.NOTNULL),
-            Pair("token", ColumnType.TEXT) to emptyList(),
-            Pair("tokenExpireTime", ColumnType.DATETIME) to emptyList()
+            "id" to ColumnType.INTEGER to listOf(ColumnRestrict.NOTNULL, ColumnRestrict.PRIMARYKEY, ColumnRestrict.AUTOINCREMENT),
+            "name" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL),
+            "password" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL),
+            "tokenWillExpire" to ColumnType.BOOLEAN to listOf(ColumnRestrict.NOTNULL),
+            "token" to ColumnType.TEXT to emptyList(),
+            "tokenExpireTime" to ColumnType.DATETIME to emptyList()
         )
     )
 
