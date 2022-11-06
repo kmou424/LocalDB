@@ -46,5 +46,4 @@ class AppSQLiteManager(dbPath: String) : SQLiteManager(dbPath) {
         this.insert(AppTables.Users, data = user, ignoreKeys = listOf("id"))
         return true
     }
-
 }

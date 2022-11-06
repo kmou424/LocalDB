@@ -3,11 +3,24 @@ package moe.kmou424.localdb.modules
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import moe.kmou424.localdb.appDataBase
+import moe.kmou424.localdb.dao.database.sys.AppUserTable
+import moe.kmou424.sqlite.utils.TokenUtil.verifyToken
 
 fun Application.configureDataBase() {
     routing {
         post("/api/db/{operation}") {
             val operation = call.parameters["operation"]
+
+            val token = call.request.queryParameters["token"] ?: let {
+                call.respond(mapOf("status" to "\"token\" must not be empty"))
+                return@post
+            }
+
+            if (!appDataBase.verifyToken<AppUserTable>(token, "token")) {
+                call.respond(mapOf("status" to "\"token\" is invalid"))
+                return@post
+            }
 
             when (operation) {
                 "init" ->
@@ -17,16 +30,13 @@ fun Application.configureDataBase() {
                     }
                 else ->
                     if (call.request.queryParameters["databaseKey"].isNullOrEmpty()) {
-                        call.respond(mapOf("status" to "\"databaseName\" must not be empty"))
+                        call.respond(mapOf("status" to "\"databaseKey\" must not be empty"))
                         return@post
                     }
             }
 
             call.respond(
                 when (operation) {
-                    // create database
-                    "init" -> mapOf("status" to "ok")
-
                     // table management
                     "create" -> mapOf("status" to "ok")
                     "drop" -> mapOf("status" to "ok")

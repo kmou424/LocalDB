@@ -3,7 +3,7 @@ package moe.kmou424.localdb.dao.database.sys
 import moe.kmou424.sqlite.dao.SQLiteTable
 
 data class AppUserTable(
-    var id: Int = 0,
+    override var id: Int = 0,
     var name: String = "",
     var password: String = "",
     var tokenWillExpire: Boolean = false,
