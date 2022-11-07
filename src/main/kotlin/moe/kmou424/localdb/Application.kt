@@ -14,14 +14,24 @@ import moe.kmou424.localdb.modules.configureDataBase
 import moe.kmou424.localdb.modules.configureStatic
 import moe.kmou424.localdb.utils.AppDataUtil
 import moe.kmou424.localdb.utils.ConfigurationUtil
+import moe.kmou424.sqlite.SQLiteManager
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
+
+object DataBaseSubDirs {
+    val sys by lazy {
+        AppDataUtil.DataBaseDir
+            .getDir("sys", true)
+    }
+    val user by lazy {
+        AppDataUtil.DataBaseDir
+            .getDir("user", true)
+    }
+}
 
 val appConfiguration = ConfigurationUtil.getAppConfiguration()
 
-// val connections = HashMap<String, Session>()
-val appDataBase: AppSQLiteManager = AppDataUtil.DataBaseDir
-    .getDir("sys", true)
-    .getFile("app")
+val appSqlConnections = HashMap<String, SQLiteManager>()
+val appDataBase: AppSQLiteManager = DataBaseSubDirs.sys.getFile("app")
     .getSelfFile().absolutePath.let {
         return@let AppSQLiteManager(it)
     }
