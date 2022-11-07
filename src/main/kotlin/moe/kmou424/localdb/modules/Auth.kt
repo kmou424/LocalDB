@@ -46,12 +46,15 @@ private fun authLogin(user: User): HttpResponse {
             "token" to ColumnType.TEXT,
             "tokenExpireTime" to ColumnType.DATETIME
         ),
-        "name=?",
-        listOf(user.username)
+        if (user.token == null) "name=?" else "token=?",
+        if (user.token == null) listOf(user.username) else listOf(user.token)
     )
 
     if (data.size == 1) {
         val u = data[0]
+        if (user.token != null && u.tokenExpireTime != null && LocalDateTime.now().isAfter(LocalDateTime.parse(u.tokenExpireTime))) {
+            return HttpResponse.TOKEN_EXPIRED.reinsert("token" to null)
+        }
         if (u.password == AesUtil.encrypt(user.password)) {
             if (!u.tokenWillExpire) {
                 token = u.token ?: run {

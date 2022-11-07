@@ -22,5 +22,7 @@ enum class HttpResponse(
     var message: Map<String, Any?>
 ) {
     OK(HttpStatusCode.OK, mapOf("message" to "ok")),
-    FAILED(HttpStatusCode.BadRequest, mapOf("message" to "failed"))
+    FAILED(HttpStatusCode.BadRequest, mapOf("message" to "failed")),
+
+    TOKEN_EXPIRED(HttpStatusCode.BadRequest, mapOf("message" to "token expired"))
 }
