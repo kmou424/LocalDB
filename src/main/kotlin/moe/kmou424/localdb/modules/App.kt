@@ -6,7 +6,7 @@ import moe.kmou424.common.utils.AesUtil
 import moe.kmou424.localdb.appConfiguration
 import moe.kmou424.localdb.appDataBase
 import moe.kmou424.localdb.dao.AppSQLiteManager
-import moe.kmou424.localdb.entities.database.sys.AppAuthorizedDataBaseTable
+import moe.kmou424.localdb.entities.database.sys.AppApplicationTable
 import moe.kmou424.localdb.entities.database.sys.AppUserTable
 import moe.kmou424.localdb.entities.http.HttpResponse
 import moe.kmou424.localdb.entities.http.reinsert
@@ -40,27 +40,26 @@ private fun initAppDataBase() {
             "tokenWillExpire" to ColumnType.BOOLEAN to listOf(ColumnRestrict.NOTNULL),
             "token" to ColumnType.TEXT to emptyList(),
             "tokenExpireTime" to ColumnType.DATETIME to emptyList(),
-            "databaseKeyOwned" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL),
-            "databaseKeyAccessible" to ColumnType.TEXT to emptyList()
+            "applicationKeyOwned" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL)
         )
     )
 
     // Create authed database table
     appDataBase.create(
-        AppSQLiteManager.AppTables.AuthorizedDataBase,
+        AppSQLiteManager.AppTables.Applications,
         mapOf(
             "id" to ColumnType.INTEGER to listOf(ColumnRestrict.NOTNULL, ColumnRestrict.PRIMARYKEY, ColumnRestrict.AUTOINCREMENT),
-            "databaseKey" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL),
-            "databaseName" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL)
+            "applicationKey" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL),
+            "database" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL)
         )
     )
 }
 
 private fun initAdminUser() {
-    appDataBase.query<AppAuthorizedDataBaseTable>(
-        AppSQLiteManager.AppTables.AuthorizedDataBase,
+    appDataBase.query<AppApplicationTable>(
+        AppSQLiteManager.AppTables.Applications,
         listOf("id" to ColumnType.INTEGER),
-        condition = "databaseName=?",
+        condition = "database=?",
         conditionArgs = listOf(appConfiguration.admin.username)
     )
 
@@ -74,7 +73,7 @@ private fun initAdminUser() {
         },
         token = appDataBase.getUniqueToken<AppUserTable>(),
         tokenWillExpire = false,
-        databaseKeyOwned = ""
+        applicationKeyOwned = ""
     )
     appDataBase.insertUser(adminUser)
 }

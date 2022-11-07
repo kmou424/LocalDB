@@ -1,6 +1,6 @@
 package moe.kmou424.localdb.dao
 
-import moe.kmou424.localdb.entities.database.sys.AppAuthorizedDataBaseTable
+import moe.kmou424.localdb.entities.database.sys.AppApplicationTable
 import moe.kmou424.localdb.entities.database.sys.AppUserTable
 import moe.kmou424.sqlite.SQLiteManager
 import moe.kmou424.sqlite.enums.ColumnType
@@ -10,19 +10,19 @@ class AppSQLiteManager(dbPath: String) : SQLiteManager(dbPath) {
 
     object AppTables {
         const val Users = "_Users"
-        const val AuthorizedDataBase = "_AuthorizedDataBase"
+        const val Applications = "_Applications"
     }
 
-    private fun insertAuthorizedDataBase(authorizedDataBase: AppAuthorizedDataBaseTable): Boolean {
-        if (this.query<AppAuthorizedDataBaseTable>(
-                AppTables.AuthorizedDataBase,
+    private fun insertApplication(authorizedDataBase: AppApplicationTable): Boolean {
+        if (this.query<AppApplicationTable>(
+                AppTables.Applications,
                 columnsWithTypes = listOf("id" to ColumnType.INTEGER),
-                condition = "databaseName=?",
-                conditionArgs = listOf(authorizedDataBase.databaseName)
+                condition = "database=?",
+                conditionArgs = listOf(authorizedDataBase.database)
             ).isNotEmpty()
         ) return false
 
-        this.insert(AppTables.AuthorizedDataBase, data = authorizedDataBase, ignoreKeys = listOf("id"))
+        this.insert(AppTables.Applications, data = authorizedDataBase, ignoreKeys = listOf("id"))
         return true
     }
 
@@ -35,13 +35,13 @@ class AppSQLiteManager(dbPath: String) : SQLiteManager(dbPath) {
             ).isNotEmpty()
         ) return false
 
-        val userDataBase = AppAuthorizedDataBaseTable(
-            databaseKey = this.getUniqueToken<AppAuthorizedDataBaseTable>(),
-            databaseName = user.name
+        val userDataBase = AppApplicationTable(
+            applicationKey = this.getUniqueToken<AppApplicationTable>(),
+            database = user.name
         )
 
-        this.insertAuthorizedDataBase(userDataBase)
-        user.databaseKeyOwned = userDataBase.databaseKey
+        this.insertApplication(userDataBase)
+        user.applicationKeyOwned = userDataBase.applicationKey
 
         this.insert(AppTables.Users, data = user, ignoreKeys = listOf("id"))
         return true

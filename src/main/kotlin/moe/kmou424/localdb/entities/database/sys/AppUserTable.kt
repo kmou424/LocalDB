@@ -9,6 +9,5 @@ data class AppUserTable(
     var tokenWillExpire: Boolean = false,
     var token: String? = null,
     var tokenExpireTime: String? = null,
-    var databaseKeyOwned: String = "",
-    var databaseKeyAccessible: String? = null
+    var applicationKeyOwned: String = ""
 ) : SQLiteTable()

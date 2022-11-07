@@ -2,7 +2,7 @@ package moe.kmou424.sqlite.utils
 
 import moe.kmou424.common.utils.SimpleTokenUtil
 import moe.kmou424.localdb.dao.AppSQLiteManager
-import moe.kmou424.localdb.entities.database.sys.AppAuthorizedDataBaseTable
+import moe.kmou424.localdb.entities.database.sys.AppApplicationTable
 import moe.kmou424.localdb.entities.database.sys.AppUserTable
 import moe.kmou424.sqlite.ColumnName
 import moe.kmou424.sqlite.entities.SQLiteTable
@@ -26,10 +26,10 @@ object TokenUtil {
                     "token=?",
                     listOf(token)
                 )
-                query[0] is AppAuthorizedDataBaseTable -> this.query(
-                    AppSQLiteManager.AppTables.AuthorizedDataBase,
+                query[0] is AppApplicationTable -> this.query(
+                    AppSQLiteManager.AppTables.Applications,
                     listOf("id" to ColumnType.INTEGER),
-                    "databaseKey=?",
+                    "applicationKey=?",
                     listOf(token)
                 )
                 else -> emptyList()
@@ -43,7 +43,7 @@ object TokenUtil {
         return this.query<SQLiteTable>(
             when (T::class.java.getConstructor().newInstance()) {
                 is AppUserTable -> AppSQLiteManager.AppTables.Users
-                is AppAuthorizedDataBaseTable -> AppSQLiteManager.AppTables.AuthorizedDataBase
+                is AppApplicationTable -> AppSQLiteManager.AppTables.Applications
                 else -> return false
             },
             listOf("id" to ColumnType.INTEGER),

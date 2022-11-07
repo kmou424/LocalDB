@@ -6,7 +6,7 @@ import moe.kmou424.localdb.DataBaseSubDirs
 import moe.kmou424.localdb.appDataBase
 import moe.kmou424.localdb.appSqlConnections
 import moe.kmou424.localdb.dao.AppSQLiteManager
-import moe.kmou424.localdb.entities.database.sys.AppAuthorizedDataBaseTable
+import moe.kmou424.localdb.entities.database.sys.AppApplicationTable
 import moe.kmou424.localdb.entities.database.sys.AppUserTable
 import moe.kmou424.localdb.entities.http.HttpResponse
 import moe.kmou424.localdb.entities.http.reinsert
@@ -30,9 +30,9 @@ fun Application.configureDataBase() {
                 return@post
             }
 
-            call.request.queryParameters["databaseKey"].let { databaseKey ->
-                if (!databaseKey.isNullOrEmpty()) {
-                    if (appSqlConnections[databaseKey] != null) return@let
+            call.request.queryParameters["applicationKey"].let { applicationKey ->
+                if (!applicationKey.isNullOrEmpty()) {
+                    if (appSqlConnections[applicationKey] != null) return@let
 
                     // Do database permission check
 
@@ -42,39 +42,39 @@ fun Application.configureDataBase() {
                         listOf(
                             "token" to ColumnType.TEXT
                         ),
-                        "databaseKeyOwned LIKE ?",
-                        listOf(databaseKey)
+                        "applicationKeyOwned LIKE ?",
+                        listOf(applicationKey)
                     ).let { list ->
                         if (list.isEmpty()) {
-                            call.send(HttpResponse.FAILED.reinsert("message" to "\"databaseKey\" is invalid"))
+                            call.send(HttpResponse.FAILED.reinsert("message" to "\"applicationKey\" is invalid"))
                             return@post
                         } else if (list[0].token != token) {
-                            call.send(HttpResponse.FAILED.reinsert("message" to "database is not belong to this user"))
+                            call.send(HttpResponse.FAILED.reinsert("message" to "application is not belong to this user"))
                             return@post
                         }
                     }
 
                     // to get database name
-                    appDataBase.query<AppAuthorizedDataBaseTable>(
-                        AppSQLiteManager.AppTables.AuthorizedDataBase,
+                    appDataBase.query<AppApplicationTable>(
+                        AppSQLiteManager.AppTables.Applications,
                         listOf(
-                            "databaseKey" to ColumnType.TEXT,
-                            "databaseName" to ColumnType.TEXT
+                            "applicationKey" to ColumnType.TEXT,
+                            "database" to ColumnType.TEXT
                         ),
-                        "databaseKey=?",
-                        listOf(databaseKey)
+                        "applicationKey=?",
+                        listOf(applicationKey)
                     ).let { list ->
                         if (list.isEmpty()) {
-                            call.send(HttpResponse.FAILED.reinsert("message" to "can't find this database"))
+                            call.send(HttpResponse.FAILED.reinsert("message" to "can't find this application"))
                         } else {
-                            appSqlConnections[databaseKey] = DataBaseSubDirs.user.getFile(list[0].databaseName)
+                            appSqlConnections[applicationKey] = DataBaseSubDirs.user.getFile(list[0].database)
                                 .getSelfFile().absolutePath.run {
                                     return@run SQLiteManager(this)
                                 }
                         }
                     }
                 } else {
-                    call.send(HttpResponse.FAILED.reinsert("message" to "\"databaseKey\" must not be empty"))
+                    call.send(HttpResponse.FAILED.reinsert("message" to "\"applicationKey\" must not be empty"))
                     return@post
                 }
             }
