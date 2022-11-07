@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 
 fun Application.configureAuth() {
     routing {
-        post("/auth/{target}") {
+        post("/v1/auth/{target}") {
             val target = call.parameters["target"]
             call.send(
                 when (target) {

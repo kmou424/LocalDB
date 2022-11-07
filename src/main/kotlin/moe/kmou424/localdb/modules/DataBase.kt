@@ -11,7 +11,7 @@ import moe.kmou424.sqlite.utils.TokenUtil.verifyToken
 
 fun Application.configureDataBase() {
     routing {
-        post("/api/db/{operation}") {
+        post("/v1/database/{operation}") {
             val operation = call.parameters["operation"]
 
             val token = call.request.queryParameters["token"] ?: let {

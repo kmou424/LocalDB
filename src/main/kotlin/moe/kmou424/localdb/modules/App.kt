@@ -17,7 +17,7 @@ import moe.kmou424.sqlite.utils.TokenUtil.getUniqueToken
 
 fun Application.configureApp() {
     routing {
-        post("/app/{target}") {
+        post("/v1/app/{target}") {
             val target = call.parameters["target"]
             call.send(
                 when (target) {
