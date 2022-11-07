@@ -6,11 +6,13 @@ import moe.kmou424.common.utils.AesUtil
 import moe.kmou424.localdb.appConfiguration
 import moe.kmou424.localdb.appDataBase
 import moe.kmou424.localdb.dao.AppSQLiteManager
-import moe.kmou424.localdb.entities.database.sys.AppApplicationTable
-import moe.kmou424.localdb.entities.database.sys.AppUserTable
+import moe.kmou424.localdb.entities.database.sys.SysApplicationTable
+import moe.kmou424.localdb.entities.database.sys.SysUserTable
 import moe.kmou424.localdb.entities.http.HttpResponse
 import moe.kmou424.localdb.entities.http.reinsert
 import moe.kmou424.localdb.entities.http.send
+import moe.kmou424.localdb.utils.ConfigurationUtil
+import moe.kmou424.localdb.utils.ConfigurationUtil.saveAppConfiguration
 import moe.kmou424.sqlite.enums.ColumnRestrict
 import moe.kmou424.sqlite.enums.ColumnType
 import moe.kmou424.sqlite.utils.TokenUtil.getUniqueToken
@@ -38,7 +40,7 @@ private fun initAppDataBase() {
             "name" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL),
             "password" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL),
             "tokenWillExpire" to ColumnType.BOOLEAN to listOf(ColumnRestrict.NOTNULL),
-            "token" to ColumnType.TEXT to emptyList(),
+            "token" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL),
             "tokenExpireTime" to ColumnType.DATETIME to emptyList(),
             "applicationKeyOwned" to ColumnType.TEXT to listOf(ColumnRestrict.NOTNULL)
         )
@@ -56,22 +58,15 @@ private fun initAppDataBase() {
 }
 
 private fun initAdminUser() {
-    appDataBase.query<AppApplicationTable>(
-        AppSQLiteManager.AppTables.Applications,
-        listOf("id" to ColumnType.INTEGER),
-        condition = "database=?",
-        conditionArgs = listOf(appConfiguration.admin.username)
-    )
-
     // Insert admin user
-    val adminUser = AppUserTable(
+    val adminUser = SysUserTable(
         name = appConfiguration.admin.username,
         password = appConfiguration.admin.password.let { password ->
             if (appConfiguration.encrypt.enabled)
                 return@let AesUtil.encrypt(password)
             return@let password
         },
-        token = appDataBase.getUniqueToken<AppUserTable>(),
+        token = appDataBase.getUniqueToken(),
         tokenWillExpire = false,
         applicationKeyOwned = ""
     )
@@ -81,6 +76,9 @@ private fun initAdminUser() {
 private fun initApp(): HttpResponse {
     initAppDataBase()
     initAdminUser()
+
+    appConfiguration.initialized = true
+    appConfiguration.saveAppConfiguration()
 
     return HttpResponse.OK
 }

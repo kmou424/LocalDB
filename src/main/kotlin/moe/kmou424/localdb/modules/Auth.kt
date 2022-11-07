@@ -5,13 +5,11 @@ import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import moe.kmou424.common.utils.AesUtil
 import moe.kmou424.localdb.appDataBase
-import moe.kmou424.localdb.dao.AppSQLiteManager
-import moe.kmou424.localdb.entities.database.sys.AppUserTable
+import moe.kmou424.localdb.entities.database.sys.SysUserTable
 import moe.kmou424.localdb.entities.http.HttpResponse
 import moe.kmou424.localdb.entities.http.User
 import moe.kmou424.localdb.entities.http.reinsert
 import moe.kmou424.localdb.entities.http.send
-import moe.kmou424.sqlite.enums.ColumnType
 import moe.kmou424.sqlite.utils.TokenUtil.getUniqueToken
 import java.time.LocalDateTime
 
@@ -30,55 +28,53 @@ fun Application.configureAuth() {
 }
 
 private fun authLogin(user: User): HttpResponse {
-    var token: String? = null
-
-    var response = HttpResponse.OK
-
+    var token: String = appDataBase.getUniqueToken()
+    val response = HttpResponse.OK
     var needUpdate = false
+    var sysUser = SysUserTable()
+    var useToken = true
 
-    val data = appDataBase.query<AppUserTable>(
-        AppSQLiteManager.AppTables.Users,
-        listOf(
-            "id" to ColumnType.INTEGER,
-            "name" to ColumnType.TEXT,
-            "password" to ColumnType.TEXT,
-            "tokenWillExpire" to ColumnType.BOOLEAN,
-            "token" to ColumnType.TEXT,
-            "tokenExpireTime" to ColumnType.DATETIME
-        ),
-        if (user.token == null) "name=?" else "token=?",
-        if (user.token == null) listOf(user.username) else listOf(user.token)
-    )
+    if (appDataBase.sysUsersData[user.token] != null) {
+        sysUser = appDataBase.sysUsersData[user.token]!!
+    } else {
+        for (item in appDataBase.sysUsersData.values) {
+            if (item.name == user.username && item.password == AesUtil.encrypt(user.password)) {
+                sysUser = item
+                break
+            }
+        }
+        useToken = false
+    }
 
-    if (data.size == 1) {
-        val u = data[0]
-        if (user.token != null && u.tokenExpireTime != null && LocalDateTime.now().isAfter(LocalDateTime.parse(u.tokenExpireTime))) {
+    if (sysUser == SysUserTable()) {
+        return HttpResponse.FAILED.reinsert(
+            "message" to "can't authorize this user",
+            "token" to null
+        )
+    }
+
+    if (useToken) {
+        if (sysUser.tokenExpireTime != null && LocalDateTime.now().isAfter(LocalDateTime.parse(sysUser.tokenExpireTime))) {
             return HttpResponse.TOKEN_EXPIRED.reinsert("token" to null)
         }
-        if (u.password == AesUtil.encrypt(user.password)) {
-            if (!u.tokenWillExpire) {
-                token = u.token ?: run {
-                    needUpdate = true
-                    appDataBase.getUniqueToken<AppUserTable>()
-                }
+    } else {
+        if (!sysUser.tokenWillExpire) {
+            token = sysUser.token
+        } else {
+            if (sysUser.tokenExpireTime != null && LocalDateTime.now().isBefore(LocalDateTime.parse(sysUser.tokenExpireTime))) {
+                token = sysUser.token
             } else {
-                if (u.tokenExpireTime != null && LocalDateTime.now().isBefore(LocalDateTime.parse(u.tokenExpireTime))) {
-                    token = u.token
-                } else {
-                    token = u.token ?: run {
-                        needUpdate = true
-                        appDataBase.getUniqueToken<AppUserTable>()
-                    }
+                token = sysUser.token.ifEmpty {
+                    needUpdate = true
+                    token
                 }
             }
-        } else {
-            response = HttpResponse.FAILED.reinsert("message" to "Password is wrong")
         }
+    }
 
-        if (needUpdate) {
-            u.token = token
-            appDataBase.update("Users", u, "name=?", listOf(u.name))
-        }
+    if (needUpdate) {
+        sysUser.token = token
+        appDataBase.update("Users", sysUser, "name=?", listOf(sysUser.name))
     }
 
     return response.reinsert(

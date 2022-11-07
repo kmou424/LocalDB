@@ -1,7 +1,7 @@
 package moe.kmou424.localdb.dao
 
-import moe.kmou424.localdb.entities.database.sys.AppApplicationTable
-import moe.kmou424.localdb.entities.database.sys.AppUserTable
+import moe.kmou424.localdb.entities.database.sys.SysApplicationTable
+import moe.kmou424.localdb.entities.database.sys.SysUserTable
 import moe.kmou424.sqlite.SQLiteManager
 import moe.kmou424.sqlite.enums.ColumnType
 import moe.kmou424.sqlite.utils.TokenUtil.getUniqueToken
@@ -13,8 +13,11 @@ class AppSQLiteManager(dbPath: String) : SQLiteManager(dbPath) {
         const val Applications = "_Applications"
     }
 
-    private fun insertApplication(authorizedDataBase: AppApplicationTable): Boolean {
-        if (this.query<AppApplicationTable>(
+    lateinit var sysUsersData: HashMap<String, SysUserTable>
+    lateinit var sysApplicationsData: HashMap<String, SysApplicationTable>
+
+    private fun insertApplication(authorizedDataBase: SysApplicationTable): Boolean {
+        if (this.query<SysApplicationTable>(
                 AppTables.Applications,
                 columnsWithTypes = listOf("id" to ColumnType.INTEGER),
                 condition = "database=?",
@@ -23,11 +26,12 @@ class AppSQLiteManager(dbPath: String) : SQLiteManager(dbPath) {
         ) return false
 
         this.insert(AppTables.Applications, data = authorizedDataBase, ignoreKeys = listOf("id"))
+        notifyApplicationsTableChanged()
         return true
     }
 
-    fun insertUser(user: AppUserTable): Boolean {
-        if (this.query<AppUserTable>(
+    fun insertUser(user: SysUserTable): Boolean {
+        if (this.query<SysUserTable>(
                 AppTables.Users,
                 columnsWithTypes = listOf("id" to ColumnType.INTEGER),
                 condition = "name=?",
@@ -35,8 +39,8 @@ class AppSQLiteManager(dbPath: String) : SQLiteManager(dbPath) {
             ).isNotEmpty()
         ) return false
 
-        val userDataBase = AppApplicationTable(
-            applicationKey = this.getUniqueToken<AppApplicationTable>(),
+        val userDataBase = SysApplicationTable(
+            applicationKey = this.getUniqueToken(),
             database = user.name
         )
 
@@ -44,6 +48,43 @@ class AppSQLiteManager(dbPath: String) : SQLiteManager(dbPath) {
         user.applicationKeyOwned = userDataBase.applicationKey
 
         this.insert(AppTables.Users, data = user, ignoreKeys = listOf("id"))
+        notifyUsersTableChanged()
         return true
+    }
+
+    fun notifyUsersTableChanged() {
+        sysUsersData = HashMap<String, SysUserTable>().also {
+            val list = this.query<SysUserTable>(
+                AppTables.Users,
+                listOf(
+                    "id" to ColumnType.INTEGER,
+                    "name" to ColumnType.TEXT,
+                    "password" to ColumnType.TEXT,
+                    "tokenWillExpire" to ColumnType.BOOLEAN,
+                    "token" to ColumnType.TEXT,
+                    "tokenExpireTime" to ColumnType.DATETIME,
+                    "applicationKeyOwned" to ColumnType.TEXT
+                )
+            )
+            for (i in list) {
+                it[i.token] = i
+            }
+        }
+    }
+
+    fun notifyApplicationsTableChanged() {
+        sysApplicationsData = HashMap<String, SysApplicationTable>().also {
+            val list = this.query<SysApplicationTable>(
+                AppTables.Applications,
+                listOf(
+                    "id" to ColumnType.INTEGER,
+                    "applicationKey" to ColumnType.TEXT,
+                    "database" to ColumnType.TEXT
+                )
+            )
+            for (i in list) {
+                it[i.applicationKey] = i
+            }
+        }
     }
 }

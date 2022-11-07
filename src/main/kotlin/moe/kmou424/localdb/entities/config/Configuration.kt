@@ -3,6 +3,7 @@ package moe.kmou424.localdb.entities.config
 import moe.kmou424.common.utils.SimpleTokenUtil
 
 data class Configuration(
+    var initialized: Boolean = false,
     val server: ServerConfigurationData = ServerConfigurationData(),
     val admin: AdminConfigurationData = AdminConfigurationData(),
     val encrypt: EncryptConfigurationData = EncryptConfigurationData(),

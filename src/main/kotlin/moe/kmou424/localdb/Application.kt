@@ -37,6 +37,7 @@ val appDataBase: AppSQLiteManager = DataBaseSubDirs.sys.getFile("app")
     }
 
 fun main() {
+    loadSysDataBase()
     embeddedServer(Netty, port = appConfiguration.server.port, host = appConfiguration.server.host,
         module = Application::module)
         .start(wait = true)
@@ -60,4 +61,11 @@ fun Application.module() {
     configureApp()
     configureAuth()
     configureDataBase()
+}
+
+fun loadSysDataBase() {
+    if (appConfiguration.initialized) {
+        appDataBase.notifyUsersTableChanged()
+        appDataBase.notifyApplicationsTableChanged()
+    }
 }
